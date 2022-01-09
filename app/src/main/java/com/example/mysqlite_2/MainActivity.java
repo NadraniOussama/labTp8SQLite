@@ -1,17 +1,17 @@
 package com.example.mysqlite_2;
 
 import android.app.ListActivity;
+import android.content.Intent;
 import android.database.SQLException;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
-
+import android.widget.ListView;
 import java.util.List;
 import java.util.Random;
 
 public class MainActivity extends ListActivity {
     private ContactDataSource dataSource;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,9 +26,12 @@ public class MainActivity extends ListActivity {
         List<Contact> values = dataSource.getAllContact();
         ArrayAdapter<Contact> adapter = new ArrayAdapter<Contact>(this, android.R.layout.simple_list_item_1, values);
         setListAdapter(adapter);
-//        ListView = (ListView) findViewById(android.R.id.list);
-
-        // TODO: get a the contact of the item selected from ListView so we could send it to secound activity to manage
+    }
+    @Override
+    protected void onListItemClick(ListView listView, View v, int position, long id) {
+        Intent i = new Intent(MainActivity.this,MainActivity2.class);
+        i.putExtra("contact",(Contact) getListAdapter().getItem(position));
+        startActivityForResult(i,0);
     }
     public void onClick(View view) {
         @SuppressWarnings("unchecked")
@@ -37,19 +40,15 @@ public class MainActivity extends ListActivity {
 
         switch (view.getId()) {
             case R.id.add:
-                String[] names = new String[] { "oussama", "alaoui",
-                        "ali","ahmed","omar" };
-                int nextInt = new Random().nextInt(3);
-                StringBuilder numString = new StringBuilder ("06");
-                for (int i = 0; i <= 7 ;i++) {
-                    int num = new Random().nextInt(9);
-                   numString.append(num);
-                }
+//                adapter.add(createRandomContact()); // uncomment si vous voulez generer avec un click des contact random
+                Intent i = new Intent(MainActivity.this,MainActivity2.class);
+                startActivityForResult(i,0);
+//                contact = new Contact(229,"Nadrani","Hey","nadrani@something.jk");
+//                dataSource.updateContact(contact);
+//                adapter.remove(dataSource.getContact(229));
+//                adapter.insert(contact,0);
+//                adapter.add(contact);
 
-                // save the new comment to the database
-                contact =dataSource.createContact(names[nextInt], numString.toString()
-                        ,names[nextInt]+"@usmba.ac.ma");
-                adapter.add(contact);
                 break;
             case R.id.delete:
                 if (getListAdapter().getCount() > 0) {
@@ -58,11 +57,23 @@ public class MainActivity extends ListActivity {
                     adapter.remove(contact);
                 }
                 break;
-            case android.R.id.list:
-                System.out.println("test");
-                break;
         }
         adapter.notifyDataSetChanged();
+    }
+    private Contact createRandomContact(){
+        Contact contact = new Contact();
+        String[] names = new String[] { "oussama", "alaoui",
+                "ali","ahmed","omar" };
+        int nextInt = new Random().nextInt(3);
+        StringBuilder numString = new StringBuilder ("06");
+        for (int i = 0; i <= 7 ;i++) {
+            int num = new Random().nextInt(9);
+            numString.append(num);
+        }
+        // save the new comment to the database
+        contact =dataSource.createContact(names[nextInt], numString.toString()
+                ,names[nextInt]+"@usmba.ac.ma");
+        return contact;
     }
 
     @Override

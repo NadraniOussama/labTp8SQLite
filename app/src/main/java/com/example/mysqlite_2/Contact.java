@@ -23,6 +23,14 @@ public class Contact implements Serializable {
     public void setName(String name) {
         this.name = name;
     }
+    public Contact(){
+
+    }
+    public Contact(long id, String name,String number,String email ){
+        this.name=name;
+        this.number=number;
+        this.email=email;
+    }
 
     public String getEmail() {
         return email;

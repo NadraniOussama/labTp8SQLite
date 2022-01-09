@@ -24,8 +24,11 @@ public class ContactDataSource {
 
         public Contact updateContact(Contact contact){
             ContentValues values = new ContentValues();
-            db.updateWithOnConflict(MySQLiteHelper.TABLE_CONTACT_LIST,values,MySQLiteHelper.COLUMN_ID+ " = "+contact.getId()
-                    ,null,0);
+            values.put(MySQLiteHelper.COLUMN_EMAIL,contact.getEmail());
+            values.put(MySQLiteHelper.COLUMN_NUMBER,contact.getNumber());
+            values.put(MySQLiteHelper.COLUMN_NAME,contact.getName());
+            db.updateWithOnConflict(MySQLiteHelper.TABLE_CONTACT_LIST,values,MySQLiteHelper.COLUMN_ID+ "=?"
+                    ,new String [] {String.valueOf(contact.getId())},SQLiteDatabase.CONFLICT_IGNORE);
             return contact;
         }
         public Contact createContact(String contact,String number,String email){
@@ -33,6 +36,7 @@ public class ContactDataSource {
             values.put(MySQLiteHelper.COLUMN_NAME,contact);
             values.put(MySQLiteHelper.COLUMN_NUMBER,number);
             values.put(MySQLiteHelper.COLUMN_EMAIL,email);
+
             long insertId = db.insert(MySQLiteHelper.TABLE_CONTACT_LIST,null , values);
             Cursor cursor = db.query(MySQLiteHelper.TABLE_CONTACT_LIST, allColumns,
                     MySQLiteHelper.COLUMN_ID + " = " + insertId
@@ -62,6 +66,12 @@ public class ContactDataSource {
             }
             return contactList;
         }
+        public Contact getContact(long id){
+            Cursor cursor=  db.query(MySQLiteHelper.TABLE_CONTACT_LIST,allColumns,
+                    MySQLiteHelper.COLUMN_ID+"=?",new String []{String.valueOf(id)},null,null,null);
+            cursor.moveToFirst();
+            return cursorToContact(cursor);
+        }
 
         private Contact cursorToContact(Cursor cursor){
             Contact contact = new Contact();
@@ -69,7 +79,6 @@ public class ContactDataSource {
             contact.setName(cursor.getString(1));
             contact.setNumber(cursor.getString(2));
             contact.setEmail(cursor.getString(3));
-
             return contact;
         }
 
